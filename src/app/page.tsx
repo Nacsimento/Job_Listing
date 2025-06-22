@@ -34,6 +34,7 @@ export default function Home() {
   useEffect(() => {
     if (filterArr.length === 0) {
       setFilterData(allData);
+      setAllData(allData)
     } else {
       const filtered = allData.filter((item) => {
         const allTags = [item.role, item.level, ...item.languages, ...item.tools];
