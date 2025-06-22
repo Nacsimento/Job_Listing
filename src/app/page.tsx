@@ -1,103 +1,144 @@
+'use client'
 import Image from "next/image";
+import { useData } from "./hooks/useData";
+import { useState, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+  const OriginalData = useData();
+
+  const [allData, setAllData] = useState<typeof OriginalData>(OriginalData)
+  const [filterData, setFilterData] = useState<typeof OriginalData>(OriginalData)
+  const [filterArr, setFilterArr] = useState<string[]>([])
+
+
+  function filterItem(item: string) {
+    if (!filterArr.includes(item)) {
+      const updated = [...filterArr, item];
+      setFilterArr(updated);
+    }
+  }
+
+
+  function clearFilter(index: number) {
+    const updated = filterArr.filter((_, i) => i !== index);
+    setFilterArr(updated);
+  }
+
+  function restFilter() {
+    setFilterArr([])
+
+  }
+
+
+  useEffect(() => {
+    if (filterArr.length === 0) {
+      setFilterData(allData);
+    } else {
+      const filtered = allData.filter((item) => {
+        const allTags = [item.role, item.level, ...item.languages, ...item.tools];
+        return filterArr.every((f) => allTags.includes(f));
+      });
+      setFilterData(filtered);
+    }
+  }, [filterArr, allData]);
+
+
+
+  return (
+    <>
+      <header className="bg-Dark-Cyan relative">
+        <picture>
+          <source srcSet="/bg-header-mobile.svg" media="(max-width: 1023px)" type="image/webp" />
+          <source srcSet="/bg-header-desktop.svg"  media="(max-width: 1023px)" type="image/jpeg" />
           <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            src={'/bg-header-desktop.svg'}
+            height={100}
+            width={100}
+            alt="header-desktop"
+            className="w-full"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        </picture>
+
+
+      </header>
+      {
+        filterArr.length !== 0 ?
+          <div className="relative top-[-58px] flex justify-between  items-center shadow-xl  mx-[120px]  px-6 py-9 bg-white rounded max-md:mx-[18px] max-md:gap-[42px] }">
+            <div className="flex gap-5 max-md:flex-wrap">
+              {filterArr.map((pill, id) => {
+                return (
+                  <div key={id} className="flex items-center gap-2  pl-2   bg-Light-Grayish-Cyan text-Dark-Cyan font-bold text-[13px]">
+                    <div>{pill}</div>
+                    <div onClick={() => clearFilter(id)} className="hover:bg-black transition ease-in duration-300 cursor-pointer bg-Dark-Cyan p-2">
+                      <Image
+                        src={'/icon-remove.svg'}
+                        height={18}
+                        width={18}
+                        alt="close"
+                      />
+                    </div>
+
+                  </div>
+                )
+              })}
+
+            </div>
+            <div onClick={restFilter} className="text-Dark-Grayish-Cyan font-semibold cursor-pointer hover:underline hover:text-Dark-Cyan transition  ease-in duration-100">
+              Clear
+            </div>
+          </div>
+
+          :
+          ''
+
+      }
+
+      <section className={`${filterArr.length === 0 ? 'mt-14' : 'mt-0'} flex flex-col gap-4  max-md:gap-8`}>
+        {
+          filterData.map((item) => {
+            return (
+              <div key={item.id} className={` flex justify-between items-center shadow-xl  mx-[120px] my-2 px-6 py-9 bg-white rounded ${item.featured ? 'border-l-4 border-l-Dark-Cyan' : ''} max-md:flex-col  max-md:mx-[18px] max-md:items-start`}>
+                <div className="flex gap-4 relative">
+                  <div className="max-md:absolute top-[-59px]">
+                    <Image
+                      src={item.logo}
+                      height={75}
+                      width={75}
+                      alt={item.company}
+                      className="max-md:w-12"
+                    />
+                  </div>
+                  <div className="flex flex-col justify-between items-start max-md:gap-3">
+                    <div className="flex gap-3 items-center ">
+                      <h1 className="text-Dark-Cyan font-Spartan font-bold">{item.company}</h1>
+                      <p className={`${item.new ? 'flex items-center justify-center font-Spartan font-bold text-white text-[12px] px-1.5 py-0.5 bg-Dark-Cyan rounded-full' : ''}`}>{item.new ? 'NEW' : ''}</p>
+                      <p className={`${item.featured ? 'flex items-center justify-center font-Spartan font-bold text-white text-[12px] px-1.5 py-0.5 bg-black rounded-full' : ''}`}>{item.featured ? 'FEATURED' : ''}</p>
+                    </div>
+                    <h1 className="font-Spartan font-bold cursor-pointer hover:text-Dark-Cyan transition  ease-in duration-300 ">{item.position}</h1>
+                    <div className="flex gap-3 font-Spartan">
+                      <div className="text-Dark-Grayish-Cyan font-semibold text-[13px]">{item.postedAt}</div>
+                      <div className="text-Dark-Grayish-Cyan">•</div>
+                      <div className="text-Dark-Grayish-Cyan font-semibold text-[13px]">{item.contract}</div>
+                      <div className="text-Dark-Grayish-Cyan">•</div>
+                      <div className="text-Dark-Grayish-Cyan font-semibold text-[13px]">{item.location}</div>
+                    </div>
+                  </div>
+                </div>
+                <hr  className="hidden max-md:block border-0.5 border-Dark-Grayish-Cyan w-full relative top-[18px]"/>
+                <div className="flex gap-4 max-md:flex-wrap max-md:pt-[36px] ">
+                  <div onClick={() => filterItem(item.role)} className="px-2 py-1 bg-Light-Grayish-Cyan text-Dark-Cyan font-bold text-[13px] cursor-pointer hover:bg-Dark-Cyan hover:text-white transition  ease-in duration-300">{item.role}</div>
+                  <div onClick={() => filterItem(item.level)} className="px-2 py-1 bg-Light-Grayish-Cyan text-Dark-Cyan font-bold text-[13px] cursor-pointer hover:bg-Dark-Cyan hover:text-white transition  ease-in duration-300">{item.level}</div>
+                  <div className="flex gap-4">{item.languages.map((lang, index) => { return (<div onClick={() => filterItem(lang)} className="px-2 py-1 bg-Light-Grayish-Cyan text-Dark-Cyan font-bold text-[13px] cursor-pointer hover:bg-Dark-Cyan hover:text-white transition  ease-in duration-300 max-md:flex-wrap" key={index}>{lang}</div>) })}</div>
+                  {item.tools.map((tool, index) => { if (item.tools.length !== 0) { return (<div onClick={() => filterItem(tool)} className="px-2 py-1 bg-Light-Grayish-Cyan text-Dark-Cyan font-bold text-[13px] cursor-pointer hover:bg-Dark-Cyan hover:text-white transition  ease-in duration-300 max-md:flex-wrap" key={index}>{tool}</div>) } })}
+                </div>
+
+              </div>
+            )
+          })
+        }
+      </section>
+
+    </>
   );
 }
